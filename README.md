@@ -18,16 +18,16 @@ At this day the role can be used to configure :
 
 The variables that can be passed to this role and a brief description about them are as follows:
 
-| Name                  | Description                                        |
-| --------          --- | --------------------------------------------------------------------------------------- |
-| ntp__daemon_enabled   |  Enable of not the NTP daemon synchronisation of the host                               |
-| ntp__daemon           |  The name of the daemon type to use. Available choice in ['ntpd']                       |
-| ntp__conflict_packages|  The list of others conflict packages to remove according to the selected daemon type   |
-| ntp__servers_map      |  The map that contains the ntp server for each distribution                             |
-| ntp__fudge            |  Enable fudge of the local time if server mode if desired and remote clock not available|
-| ntp__localclock       |  Provide local clock as reference by default                                            |
-| ntp__broadcast        |  The list of broadcast address(es) to whose send time                                   |
-| ntp__restrict_rules   |  The list of restricts rules (see below)                                                |
+| Name                  | Description                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| ntp__daemon_enabled   |  Enable of not the NTP daemon synchronisation of the host                                |
+| ntp__daemon           |  The name of the daemon type to use. Available choice in ['ntpd']                        |
+| ntp__conflict_packages|  The list of others conflict packages to remove according to the selected daemon type    |
+| ntp__servers_map      |  The map that contains the ntp server for each distribution                              |
+| ntp__fudge            |  Enable fudge of the local time if server mode if desired and remote clock not available |
+| ntp__localclock       |  Provide local clock as reference by default                                             |
+| ntp__broadcast        |  The list of broadcast address(es) to whose send time                                    |
+| ntp__restrict_rules   |  The list of restricts rules (see below)                                                 |
 
 ### Example
 
