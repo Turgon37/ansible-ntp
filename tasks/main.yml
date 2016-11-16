@@ -2,9 +2,10 @@
 - name: Include the OS specific variables
   include_vars: "{{ item }}"
   with_first_found:
-   - "{{ ansible_distribution }}.yml"
-   - "{{ ansible_os_family }}.yml"
-  skip: true
+    - files:
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family }}.yml"
+      skip: true
   tags: ['ntp']
 
 - name: Install required packages
