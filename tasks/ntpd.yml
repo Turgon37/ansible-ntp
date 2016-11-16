@@ -5,6 +5,7 @@
     state: absent
   with_items:
     '{{ ntp__conflict_packages }}'
+  tags: ['ntp', 'ntpd']
 
 - name: Install the latest version of NTP server
   package: 

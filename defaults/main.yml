@@ -1,11 +1,14 @@
 ---
-# Global options
+# NTP role
 # ------------------
 
 # If ``True``, role will install and configure an NTP daemon. The daemon is not
 # required in containerized environments, where the host takes care for setting
 # time accurately.
 ntp__daemon_enabled: True
+
+# The name of the service daemon
+ntp__service_name: ntp
 
 # Which clock management daemon/program should be setup?
 #
