@@ -1,0 +1,82 @@
+---
+# Global options
+# ------------------
+
+# If ``True``, role will install and configure an NTP daemon. The daemon is not
+# required in containerized environments, where the host takes care for setting
+# time accurately.
+ntp__daemon_enabled: True
+
+# Which clock management daemon/program should be setup?
+#
+# Choices (string):
+#
+# - ntpd
+#
+# Set to ``False`` to disable clock management.
+ntp__daemon: 'ntpd'
+
+# List of package to 
+ntp__conflict_packages: []
+
+# List of NTP servers to synchronize with
+# If you use :program:`ntpd`, you can add server options in server strings, for example::
+#
+#     ntp__servers:
+#       - '0.debian.pool.ntp.org iburst minpoll 6 maxpoll 10'
+#
+# If you're syncing against local servers, recommended options are:
+# 'burst iburst minpoll 4 maxpoll 4', where:
+#
+# ``burst`` and ``iburst``:
+#   Get a time sync as fast as possible by sending 8 sync queries with 2 second
+#   interval. (Beware though, this is considered as an abuse on public servers!)
+#
+# ``minpoll``, ``maxpoll``:
+#   Min/max interval for sync queries to be sent in normal operation mode. It's
+#   defined in seconds as a power of two:
+#
+#   * 4 -- 16 seconds (minimal allowed)
+#   * 5 -- 32 seconds
+#   * 6 -- 64 seconds
+#
+#   and so on.
+#
+ntp__servers: '{{ ntp__servers_map[ansible_distribution]
+                  | d(ntp__servers_map["default"]) + ntp__servers_additionnals | list }}'
+
+ntp__servers_additionnals: []
+
+# YAML dictionary with different NTP server lists depending on OS distribution.
+ntp__servers_map:
+  'Debian':  [ '0.debian.pool.ntp.org', '1.debian.pool.ntp.org',
+               '2.debian.pool.ntp.org', '3.debian.pool.ntp.org' ]
+  'Ubuntu':  [ '0.ubuntu.pool.ntp.org', '1.ubuntu.pool.ntp.org',
+               '2.ubuntu.pool.ntp.org', '3.ubuntu.pool.ntp.org' ]
+  'CentOS':  [ '0.centos.pool.ntp.org iburst', 'server 1.centos.pool.ntp.org iburst',
+                'server 2.centos.pool.ntp.org iburst', 'server 3.centos.pool.ntp.org iburst']
+  'default': [ '0.pool.ntp.org', '1.pool.ntp.org',
+               '2.pool.ntp.org', '3.pool.ntp.org' ]
+
+# Fudge local clock if time servers is not available.
+ntp__fudge: False
+
+# Enable reference on the local clock
+ntp__localclock: True
+
+# List of multicast or broadcast address to which diffuse time messages
+ntp__broadcast: []
+
+# Network accessibility
+# -------------------------
+
+# List of interfaces :program:`ntpd` should listen on.
+# Specify::
+#
+#     ntp__listen: '*'
+#
+# to listen on all interfaces.
+ntp__listen: '*'
+
+# List of restrict rules
+ntp__restrict_rules: []

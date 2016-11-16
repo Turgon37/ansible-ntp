@@ -1,0 +1,101 @@
+#
+# {{ ansible_managed }}
+#
+
+# Drift file.  Put this in a directory which the daemon can write to.
+# No symbolic links allowed, either, since the daemon updates the file
+# by creating a temporary in the same directory and then rename()'ing
+# it to the file.
+driftfile /var/lib/ntp/drift
+
+# Enable this if you want statistics to be logged.
+#statsdir /var/log/ntpstats/
+
+statistics loopstats peerstats clockstats
+filegen loopstats file loopstats type day enable
+filegen peerstats file peerstats type day enable
+filegen clockstats file clockstats type day enable
+
+
+
+{% if ntp__servers is defined and ntp__servers %}
+# NTP servers to synchronize with
+# pool.ntp.org maps to about 1000 low-stratum NTP servers.  Your server will
+# pick a different set every time it starts up.  Please consider joining the
+# pool: <http://www.pool.ntp.org/join.html>
+{% if ntp__servers is string %}
+server {{ ntp__servers }}
+{% else %}
+{% for address in ntp__servers %}
+server {{ address }}
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if ntp__fudge is defined and ntp__fudge %}
+# Fudge local clock if time servers is not available
+{% if ntp__localclock is defined and ntp__localclock %}
+server 127.127.1.0
+{% endif %}
+fudge 127.127.1.0 stratum 10
+{% endif %}
+
+{% if ntp__listen is defined and ntp__listen and ntp__listen != '*' %}
+# Addresses to listen on, default is to block everything
+interface ignore ipv4
+interface ignore ipv6
+{%   if ntp__listen is string %}
+interface listen {{ ntp__listen }}
+{%   else %}
+{%     for address in ntp__listen %}
+interface listen {{ address }}
+{%     endfor %}
+{%   endif %}
+{% else %}
+# ntpd will listen on all interfaces
+{% endif %}
+
+
+# Access control configuration; see /usr/share/doc/ntp-doc/html/accopt.html for
+# details.  The web page <http://support.ntp.org/bin/view/Support/AccessRestrictions>
+# might also be helpful.
+# By default, exchange time with everybody, but don't allow configuration.
+restrict -4 default kod notrap nomodify nopeer noquery
+restrict -6 default kod notrap nomodify nopeer noquery
+
+# Local users may interrogate the ntp server more closely.
+restrict 127.0.0.1
+restrict ::1
+
+{% if ntp__restrict_rules is defined and ntp__restrict_rules | length > 0 %}
+# Hosts on theses networks are less restricted.
+{%   for key, value in ntp__restrict_rules | dictsort %}
+restrict {{ key|ipaddr('network') }} mask {{ key|ipaddr('netmask') }} {{ value }}
+{%   endfor %}
+{% endif %}
+
+{% if ntp__broadcast | d([]) | length > 0 %}
+# If you want to provide time to your local subnet
+{%   for address in ntp__broadcast %}
+broadcast  {{ address }}
+{%   endfor %}
+{% endif %}
+#broadcast 192.168.1.255 key 42         # broadcast server
+#broadcastclient                        # broadcast client
+#broadcast 224.0.1.1 key 42             # multicast server
+#multicastclient 224.0.1.1              # multicast client
+#manycastserver 239.255.254.254         # manycast server
+#manycastclient 239.255.254.254 key 42  # manycast client
+
+# Key file containing the keys and key identifiers used when operating
+# with symmetric key cryptography.
+keys /etc/ntp/keys
+
+# Specify the key identifiers which are trusted.
+#trustedkey 4 8 42
+
+# Specify the key identifier to use with the ntpdc utility.
+#requestkey 8
+
+# Specify the key identifier to use with the ntpq utility.
+#controlkey 8

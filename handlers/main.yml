@@ -1,0 +1,12 @@
+---
+- name: Start NTP daemon
+  service:
+    name: '{{ ntpd__service_name }}'
+    state: started
+  tags: ['ntp']
+
+- name: Restart NTP daemon
+  service:
+    name: '{{ ntpd__service_name }}'
+    state: restarted
+  tags: ['ntp']
