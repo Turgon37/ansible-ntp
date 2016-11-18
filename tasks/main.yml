@@ -13,6 +13,7 @@
   with_items: [ 'tzdata' ]
   tags: ['ntp']
 
-- include: '{{ ntp__daemon }}.yml'
+- name: Include the daemon engine tasks
+  include: '{{ ntp__daemon }}.yml'
   when: ntp__daemon_enabled|bool
   tags: ['ntp']
