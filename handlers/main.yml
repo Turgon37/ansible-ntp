@@ -3,10 +3,8 @@
   service:
     name: '{{ ntp__service_name }}'
     state: started
-  tags: ['ntp']
 
 - name: Restart NTP daemon
   service:
     name: '{{ ntp__service_name }}'
     state: restarted
-  tags: ['ntp']
