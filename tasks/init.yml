@@ -1,0 +1,20 @@
+---
+### ASSERTION
+
+- name: Assert required variables
+  assert:
+    that:
+      - item.name in ntp__statistics.keys()
+  with_items: '{{ ntp__statistics_filegen }}'
+
+- name: Check local reference types
+  fail:
+    msg: Local reference type unknown
+  when: item.type not in ntp__local_reference_types.keys()
+  with_items: '{{ ntp__local_references }}'
+
+- name: Check stats log capabilities
+  fail:
+    msg: You want to log stats that are not generated
+  when: not ntp__statistics[item.name] 
+  with_items: '{{ ntp__statistics_filegen }}'

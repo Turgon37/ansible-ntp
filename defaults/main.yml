@@ -1,36 +1,27 @@
 ---
-# NTP role
-# ------------------
+# defaults file for ntp
 
-# If ``True``, role will install and configure an NTP daemon. The daemon is not
-# required in containerized environments, where the host takes care for setting
-# time accurately.
-ntp__daemon_enabled: True
+# List of package to remove
+ntp__conflict_packages: []
 
 # The name of the service daemon
 ntp__service_name: ntp
 
-# Which clock management daemon/program should be setup?
-#
-# Choices (string):
-#
-# - ntpd
-#
-# Set to ``False`` to disable clock management.
-ntp__daemon: 'ntpd'
+# The use that NTP will run as
+ntp__runas_user: ntp
+ntp__runas_group: '{{ ntp__runas_user }}'
 
-# List of package to 
-ntp__conflict_packages: []
+# The path to the configuration file
+ntp__configuration_file_path: /etc/ntp.conf
+
+ntp__var_directory: /var/lib/ntp
 
 # List of NTP servers to synchronize with
-# If you use :program:`ntpd`, you can add server options in server strings, for example::
-#
+# You can add server options in server strings, for example::
 #     ntp__servers:
 #       - '0.debian.pool.ntp.org iburst minpoll 6 maxpoll 10'
-#
 # If you're syncing against local servers, recommended options are:
 # 'burst iburst minpoll 4 maxpoll 4', where:
-#
 # ``burst`` and ``iburst``:
 #   Get a time sync as fast as possible by sending 8 sync queries with 2 second
 #   interval. (Beware though, this is considered as an abuse on public servers!)
@@ -42,30 +33,32 @@ ntp__conflict_packages: []
 #   * 4 -- 16 seconds (minimal allowed)
 #   * 5 -- 32 seconds
 #   * 6 -- 64 seconds
-#
-#   and so on.
-#
-ntp__servers: '{{ ntp__servers_map[ansible_distribution]
-                  | d(ntp__servers_map["default"]) + ntp__servers_additionnals | list }}'
-
+ntp__servers: '{{ ntp__servers_map[ansible_distribution]|d(ntp__servers_map["default"])|union(ntp__servers_additionnals) }}'
+# Additionnal server that you can configure
 ntp__servers_additionnals: []
 
 # YAML dictionary with different NTP server lists depending on OS distribution.
 ntp__servers_map:
-  'Debian':  [ '0.debian.pool.ntp.org', '1.debian.pool.ntp.org',
-               '2.debian.pool.ntp.org', '3.debian.pool.ntp.org' ]
-  'Ubuntu':  [ '0.ubuntu.pool.ntp.org', '1.ubuntu.pool.ntp.org',
-               '2.ubuntu.pool.ntp.org', '3.ubuntu.pool.ntp.org' ]
-  'CentOS':  [ '0.centos.pool.ntp.org iburst', '1.centos.pool.ntp.org iburst',
-                '2.centos.pool.ntp.org iburst', '3.centos.pool.ntp.org iburst']
-  'default': [ '0.pool.ntp.org', '1.pool.ntp.org',
-               '2.pool.ntp.org', '3.pool.ntp.org' ]
-
-# Fudge local clock if time servers is not available.
-ntp__fudge: False
-
-# Enable reference on the local clock
-ntp__localclock: True
+  Debian:
+    - '0.debian.pool.ntp.org'
+    - '1.debian.pool.ntp.org'
+    - '2.debian.pool.ntp.org'
+    - '3.debian.pool.ntp.org'
+  Ubuntu:
+    - '0.ubuntu.pool.ntp.org'
+    - '1.ubuntu.pool.ntp.org'
+    - '2.ubuntu.pool.ntp.org'
+    - '3.ubuntu.pool.ntp.org'
+  CentOS:
+    - '0.centos.pool.ntp.org iburst'
+    - '1.centos.pool.ntp.org iburst'
+    - '2.centos.pool.ntp.org iburst'
+    - '3.centos.pool.ntp.org iburst'
+  default:
+    - '0.pool.ntp.org'
+    - '1.pool.ntp.org'
+    - '2.pool.ntp.org'
+    - '3.pool.ntp.org'
 
 # List of multicast or broadcast address to which diffuse time messages
 ntp__broadcast: []
@@ -73,13 +66,96 @@ ntp__broadcast: []
 # Network accessibility
 # -------------------------
 
-# List of interfaces :program:`ntpd` should listen on.
-# Specify::
-#
-#     ntp__listen: '*'
-#
+# List of interfaces NTP should listen on.
+# Specify ntp__listen: '*'
 # to listen on all interfaces.
 ntp__listen: '*'
 
 # List of restrict rules
-ntp__restrict_rules: []
+ntp__default_restrict_rules:
+  # Local users may interrogate the ntp server more closely.
+  - '127.0.0.1 nomodify'
+  - '::1 nomodify'
+
+# Restrict rules defined globally for your NTP servers
+ntp__global_restrict_rules: {}
+# Restrict rules defined in a hostgroup
+ntp__group_restrict_rules: {}
+# Restrict rules defined for a specific host
+ntp__host_restrict_rules: {}
+
+# Final set of restrict rules
+ntp__restrict_rules: '{{ ntp__global_restrict_rules|
+                        combine(ntp__group_restrict_rules)|
+                        combine(ntp__host_restrict_rules) }}'
+
+# When use 'limited' in restrict rule above 
+# only the first client_limit hosts that have shown up at the server
+# and that have been active during the last client_limit_period seconds are accepted
+ntp__clientlimit: 3
+ntp__clientperiod: 3600
+
+# The path to the drift file
+ntp__drift_file: '{{ ntp__var_directory }}/drift'
+
+# The path to store statistics files
+ntp__statistics_dir: '{{ ntp__var_directory }}/stats'
+
+# Enable generation of the following statistics
+ntp__statistics:
+  # Enables recording of loop filter statistics information
+  loopstats: false
+  # Enables recording of peer statistics information
+  peerstats: false
+  # Enables recording of clock driver statistics information.
+  clockstats: false
+  # Enables recording of raw-timestamp statistics information.
+  rawstats: false
+
+# Rule for filegen
+#  - name: loopstats
+#    file: loopstats
+#    type: day
+#    link: true
+#    enable: true
+ntp__statistics_filegen: []
+
+# List of local reference types
+ntp__local_reference_types:
+  1: 'Undisciplined Local Clock (LOCAL)'
+  2: 'Trak 8820 GPS Receiver (GPS_TRAK)'
+  3: 'PSTI/Traconex 1020 WWV/WWVH Receiver (WWV_PST)'
+  4: 'Spectracom WWVB and GPS Receivers (WWVB_SPEC)'
+  5: 'TrueTime GPS/GOES/OMEGA Receivers (TRUETIME)'
+  6: 'IRIG Audio Decoder (IRIG_AUDIO)'
+  7: 'Radio CHU Audio Demodulator/Decoder (CHU)'
+  8: 'Generic Reference Driver (PARSE)'
+  9: 'Magnavox MX4200 GPS Receiver (GPS_MX4200)'
+  10: 'Austron 2200A/2201A GPS Receivers (GPS_AS2201)'
+  11: 'Arbiter 1088A/B GPS Receiver (GPS_ARBITER)'
+  12: 'KSI/Odetics TPRO/S IRIG Interface (IRIG_TPRO)'
+  13: 'Leitch CSD 5300 Master Clock Controller (ATOM_LEITCH)'
+  14: 'EES M201 MSF Receiver (MSF_EES)'
+  15: '* TrueTime generic receivers'
+  16: 'Bancomm GPS/IRIG Receiver (GPS_BANCOMM)'
+  17: 'Datum Precision Time System (GPS_DATUM)'
+  18: 'NIST Modem Time Service (ACTS_NIST)'
+  19: 'Heath WWV/WWVH Receiver (WWV_HEATH)'
+  20: 'Generic NMEA GPS Receiver (NMEA)'
+  21: 'TrueTime GPS-VME Interface (GPS_VME)'
+  22: 'PPS Clock Discipline (PPS)'
+  23: 'PTB Modem Time Service (ACTS_PTB)'
+  24: 'USNO Modem Time Service (ACTS_USNO)'
+  25: '* TrueTime generic receivers'
+  26: 'Hewlett Packard 58503A GPS Receiver (GPS_HP)'
+  27: 'Arcron MSF Receiver (MSF_ARCRON)'
+  28: 'Shared Memory Driver (SHM)'
+  29: 'Trimble Navigation Palisade GPS (GPS_PALISADE)'
+  30: 'Motorola UT Oncore GPS (GPS_ONCORE)'
+  31: 'Rockwell Jupiter GPS (GPS_JUPITER)'
+  32: 'Chrono-log K-series WWVB receiver Type 33 Dumb Clock Type 34 Ultralink WWVB Receivers'
+  35: 'Conrad Parallel Port Radio Clock (PCF)'
+  36: 'Radio WWV/H Audio Demodulator/Decoder(WWV)'
+  37: 'Forum Graphic GPS Dating station (FG)'
+  38: 'hopf GPS/DCF77 6021/komp for Serial Line (HOPF_S)'
+  39: 'hopf GPS/DCF77 6039 for PCI-Bus (HOPF_P)'

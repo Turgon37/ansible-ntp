@@ -1,0 +1,7 @@
+---
+
+- name: Ensure NTP daemon is started and enabled on boot
+  service:
+    name: "{{ ntp__service_name }}"
+    enabled: yes
+    state: started

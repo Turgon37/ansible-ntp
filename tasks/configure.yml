@@ -1,0 +1,41 @@
+---
+
+- name: Ensure var directory exists
+  file:
+    path:  '{{ item }}'
+    owner: '{{ ntp__runas_user }}'
+    group: '{{ ntp__runas_group }}'
+    mode:  0750
+    state: directory
+  with_items:
+    - '{{ ntp__var_directory }}'
+    - '{{ ntp__statistics_dir if ntp__statistics_dir is defined else omit }}'
+
+- name: "Ensure NTP user '{{ ntp__runas_user }}' is present"
+  user:
+    name:       '{{ ntp__runas_user }}'
+    group:      '{{ ntp__runas_group }}'
+    shell:      /bin/false
+    createhome: no
+    system:     yes
+    state:      present
+  notify: [ 'restart-ntp' ]
+
+- name: Install default configuration file
+  template:
+    src:   default-ntp.j2
+    dest:  /etc/default/ntp
+    owner: root
+    group: root
+    mode:  0644
+  when: ansible_distribution == 'Debian'
+  notify: [ 'restart-ntp' ]
+
+- name: 'Setup {{ ntp__configuration_file_path }}'
+  template:
+    src:   'ntp.conf.j2'
+    dest:  '{{ ntp__configuration_file_path }}'
+    owner: root
+    group: root
+    mode:  0644
+  notify: [ 'restart-ntp' ]

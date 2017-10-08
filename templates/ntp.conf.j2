@@ -1,0 +1,92 @@
+#
+# {{ ansible_managed }}
+#
+
+## Network interfaces
+{% if ntp__listen != '*' %}
+# Addresses to listen on, default is to block everything
+interface ignore ipv4
+interface ignore ipv6
+{%   if ntp__listen is string %}
+interface listen {{ ntp__listen }}
+{%   else %}
+{%     for address in ntp__listen %}
+interface listen {{ address }}
+{%     endfor %}
+{%   endif %}
+{% else %}
+# ntpd will listen on all interfaces
+{% endif %}
+
+## Access control configuration; see /usr/share/doc/ntp-doc/html/accopt.html
+{% for rule in ntp__default_restrict_rules %}
+restrict {{ rule }}
+{% endfor %}
+{% if ntp__restrict_rules|length > 0 %}
+{%   for key, value in ntp__restrict_rules|dictsort %}
+restrict {{ key|ipaddr('network') }} mask {{ key|ipaddr('netmask') }} {{ value }}
+{%   endfor %}
+{% endif %}
+
+clientlimit {{ ntp__clientlimit }}
+clientperiod {{ ntp__clientperiod }}
+
+## References
+# List of NTP servers to synchronize with
+{% if ntp__servers is string %}
+server {{ ntp__servers }}
+{% else %}
+{%   for address in ntp__servers %}
+server {{ address }}
+{%   endfor %}
+{% endif %}
+
+{% if ntp__broadcast|d([])|length > 0 %}
+# List of address to which the server will broadcast time
+{%   for address in ntp__broadcast|d([]) %}
+broadcast  {{ address }}
+{%   endfor %}
+{% endif %}
+
+# Local references
+{% for ref in ntp__local_references|d([]) %}
+# {{ ntp__local_reference_types[ref.type] }}
+server 127.127.{{ ref.type }}.{{ ref.type|d(0) }}
+fudge 127.127.{{ ref.type }}.{{ ref.type|d(0) }}{% for key, value in ref.parameters|d({})|dictsort %} {{ key }} {{ value }}{% endfor %}
+{% endfor %}
+
+# Drift file.  Put this in a directory which the daemon can write to.
+driftfile {{ ntp__drift_file }}
+
+{% if ntp__statistics_dir is defined %}
+statsdir {{ ntp__statistics_dir }}
+{% endif %}
+
+{% if true in ntp__statistics.values() %}
+statistics{% for key, value in ntp__statistics|dictsort %}{% if value|bool %} {{ key }}{% endif %}{% endfor %}
+
+{%   for rule in ntp__statistics_filegen|d([]) %}
+filegen {{ rule.name }} file {{ rule.file }} type {{ rule.type }} {{ rule.link|d(true)|ternary('link', 'no-link') }} {{ rule.enable|d(true)|ternary('enable', 'disable') }}
+{%   endfor %}
+{% endif %}
+
+
+## UNMANAGED
+
+#broadcastclient                        # broadcast client
+#multicastclient 224.0.1.1              # multicast client
+#manycastserver 239.255.254.254         # manycast server
+#manycastclient 239.255.254.254 key 42  # manycast client
+
+# Key file containing the keys and key identifiers used when operating
+# with symmetric key cryptography.
+keys /etc/ntp/keys
+
+# Specify the key identifiers which are trusted.
+#trustedkey 4 8 42
+
+# Specify the key identifier to use with the ntpdc utility.
+#requestkey 8
+
+# Specify the key identifier to use with the ntpq utility.
+#controlkey 8
