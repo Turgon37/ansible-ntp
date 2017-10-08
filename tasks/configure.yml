@@ -20,6 +20,13 @@
     mode:  0755
     state: directory
 
+- name: Get information about NTP user
+  getent:
+    database: passwd
+    key: '{{ ntp__runas_user }}'
+    split: ':'
+  failed_when: false
+
 - name: "Ensure NTP user '{{ ntp__runas_user }}' is present"
   user:
     name:       '{{ ntp__runas_user }}'
@@ -29,6 +36,7 @@
     createhome: no
     system:     yes
     state:      present
+  when: ntp__runas_user not in getent_passwd|d([])
   notify: [ 'restart-ntp' ]
 
 - name: Install default configuration file
