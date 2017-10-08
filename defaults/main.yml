@@ -63,6 +63,9 @@ ntp__servers_map:
 # List of multicast or broadcast address to which diffuse time messages
 ntp__broadcast: []
 
+# List of local reference to set on the host
+ntp__local_references: []
+
 # Network accessibility
 # -------------------------
 
