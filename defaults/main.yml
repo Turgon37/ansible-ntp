@@ -100,6 +100,8 @@ ntp__clientperiod: 3600
 
 # Path to the keys file
 ntp__keys_file: /etc/ntp/keys
+
+# Private directory for secrets strings
 ntp__private_crypt_dir: /etc/ntp/crypto
 ntp__keys_password_file: '{{ ntp__private_crypt_dir }}/pw'
 
