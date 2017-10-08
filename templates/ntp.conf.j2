@@ -55,6 +55,7 @@ server 127.127.{{ ref.type }}.{{ ref.type|d(0) }}
 fudge 127.127.{{ ref.type }}.{{ ref.type|d(0) }}{% for key, value in ref.parameters|d({})|dictsort %} {{ key }} {{ value }}{% endfor %}
 {% endfor %}
 
+
 # Drift file.  Put this in a directory which the daemon can write to.
 driftfile {{ ntp__drift_file }}
 
@@ -70,6 +71,14 @@ filegen {{ rule.name }} file {{ rule.file }} type {{ rule.type }} {{ rule.link|d
 {%   endfor %}
 {% endif %}
 
+## Cryptography
+# Key file containing the keys and key identifiers used when operating
+# with symmetric key cryptography.
+keys {{ ntp__keys_file }}
+# Include crypto passwords file
+includefile {{ ntp__keys_password_file }}
+
+
 
 ## UNMANAGED
 
@@ -78,9 +87,7 @@ filegen {{ rule.name }} file {{ rule.file }} type {{ rule.type }} {{ rule.link|d
 #manycastserver 239.255.254.254         # manycast server
 #manycastclient 239.255.254.254 key 42  # manycast client
 
-# Key file containing the keys and key identifiers used when operating
-# with symmetric key cryptography.
-keys /etc/ntp/keys
+
 
 # Specify the key identifiers which are trusted.
 #trustedkey 4 8 42

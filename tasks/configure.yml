@@ -9,13 +9,23 @@
     state: directory
   with_items:
     - '{{ ntp__var_directory }}'
+    - '{{ ntp__private_crypt_dir }}'
     - '{{ ntp__statistics_dir if ntp__statistics_dir is defined else omit }}'
+
+- name: Ensure configuration directory exists
+  file:
+    path:  '{{ ntp__configuration_dir }}'
+    owner: root
+    group: root
+    mode:  0755
+    state: directory
 
 - name: "Ensure NTP user '{{ ntp__runas_user }}' is present"
   user:
     name:       '{{ ntp__runas_user }}'
     group:      '{{ ntp__runas_group }}'
     shell:      /bin/false
+    home:       '{{ ntp__var_directory }}'
     createhome: no
     system:     yes
     state:      present
@@ -38,4 +48,22 @@
     owner: root
     group: root
     mode:  0644
+  notify: [ 'restart-ntp' ]
+
+- name: Setup keys file
+  template:
+    src:   'keys.j2'
+    dest:  '{{ ntp__keys_file }}'
+    owner: root
+    group: root
+    mode:  0600
+  notify: [ 'restart-ntp' ]
+
+- name: Setup keys password file
+  template:
+    src:   'keys_passwords.j2'
+    dest:  '{{ ntp__keys_password_file }}'
+    owner: root
+    group: root
+    mode:  0600
   notify: [ 'restart-ntp' ]
