@@ -55,6 +55,14 @@ server 127.127.{{ ref.type }}.{{ ref.type|d(0) }}
 fudge 127.127.{{ ref.type }}.{{ ref.type|d(0) }}{% for key, value in ref.parameters|d({})|dictsort %} {{ key }} {{ value }}{% endfor %}
 {% endfor %}
 
+# Facilities
+{% for key, value in ntp__faciities|dictsort %}
+{%   if value|bool %}
+enable {{ key }}
+{%   else %}
+disable {{ key }}
+{%   endif %}
+{% endfor %}
 
 # Drift file.  Put this in a directory which the daemon can write to.
 driftfile {{ ntp__drift_file }}

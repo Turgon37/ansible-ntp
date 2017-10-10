@@ -105,6 +105,23 @@ ntp__keys_file: /etc/ntp/keys
 ntp__private_crypt_dir: /etc/ntp/crypto
 ntp__keys_password_file: '{{ ntp__private_crypt_dir }}/pw'
 
+# Default settings for facilities
+ntp__default_faciities:
+  auth: true
+  bclient: false
+  calibrate: false
+  mode7: false
+  monitor: false
+  ntp: true
+  stats: true
+
+# Global settings for facilities, you can override this
+ntp__global_faciities: {}
+
+# Internal merged value
+ntp__faciities: '{{ ntp__default_faciities|
+                      combine(ntp__global_faciities) }}'
+
 # The path to the drift file
 ntp__drift_file: '{{ ntp__var_directory }}/drift'
 
