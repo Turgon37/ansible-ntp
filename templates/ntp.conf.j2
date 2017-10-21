@@ -3,19 +3,15 @@
 #
 
 ## Network interfaces
-{% if ntp__listen != '*' %}
+{% if ntp__listen|length == 0 %}
+# ntpd will listen on all interfaces
+{% else %}
 # Addresses to listen on, default is to block everything
 interface ignore ipv4
 interface ignore ipv6
-{%   if ntp__listen is string %}
-interface listen {{ ntp__listen }}
-{%   else %}
-{%     for address in ntp__listen %}
+{%   for address in ntp__listen %}
 interface listen {{ address }}
-{%     endfor %}
-{%   endif %}
-{% else %}
-# ntpd will listen on all interfaces
+{%   endfor %}
 {% endif %}
 
 ## Access control configuration; see /usr/share/doc/ntp-doc/html/accopt.html

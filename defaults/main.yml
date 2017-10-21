@@ -70,9 +70,15 @@ ntp__local_references: []
 # -------------------------
 
 # List of interfaces NTP should listen on.
-# Specify ntp__listen: '*'
+# Specify empty array
 # to listen on all interfaces.
-ntp__listen: '*'
+ntp__listen: "{{ ntp__global_listen|
+                  union(ntp__group_listen)|
+                  union(ntp__host_listen) }}"
+
+ntp__global_listen: []
+ntp__group_listen: []
+ntp__host_listen: []
 
 # List of restrict rules
 ntp__default_restrict_rules:
