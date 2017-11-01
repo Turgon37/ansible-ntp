@@ -12,7 +12,7 @@ content=dict()
 version_re = re.compile('^ntpd\s+(?P<version>(?P<major>[0-9]+)[^ ]+)$')
 try:
     result = subprocess.check_output(['/usr/bin/env', 'ntpd', '--version'], universal_newlines=True)
-    match = version_re.search(result)
+    match = version_re.search(result.strip())
     if match:
         content['version_full'] = match.group('version')
         content['version_major'] = match.group('major')
