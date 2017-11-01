@@ -1,6 +1,12 @@
 ---
 # defaults file for ntp
 
+# Simple placeholder to allow other roles to detect this role
+ntp__role: True
+
+# Enable facts deploiement
+ntp__facts: True
+
 # List of package to remove
 ntp__conflict_packages: []
 

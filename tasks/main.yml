@@ -23,3 +23,6 @@
 
 - import_tasks: service.yml
   tags: ['ntp', 'ntp-service']
+
+- include_tasks: facts.yml
+  when: ntp__facts|bool
