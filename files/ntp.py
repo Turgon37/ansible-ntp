@@ -9,13 +9,17 @@ import sys
 content=dict()
 
 
-version_re = re.compile('^ntpd\s+(?P<version>(?P<major>[0-9]+)[^ ]+)$')
+version_re = re.compile('^ntpd\s+(?P<version>(?P<major>[0-9]+)[^ ]+)')
 try:
-    result = subprocess.check_output(['/usr/bin/env', 'ntpd', '--version'], universal_newlines=True)
-    match = version_re.search(result.strip())
-    if match:
-        content['version_full'] = match.group('version')
-        content['version_major'] = match.group('major')
+    result = subprocess.Popen(['/usr/bin/env', 'ntpd', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    (stdout, stderr) = result.communicate()
+    output = stdout + stderr
+    for line in output.split('\n'):
+        match = version_re.search(line.strip())
+        if match:
+            content['version_full'] = match.group('version')
+            content['version_major'] = match.group('major')
+            break
 except subprocess.CalledProcessError as e:
     content['error'] = str(e)
 
