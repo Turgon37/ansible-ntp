@@ -24,7 +24,9 @@ restrict {{ key|ipaddr('network') }} mask {{ key|ipaddr('netmask') }} {{ value }
 {%   endfor %}
 {% endif %}
 
+{% if ntp__clientlimit is defined %}
 clientlimit {{ ntp__clientlimit }}
+{% endif %}
 clientperiod {{ ntp__clientperiod }}
 
 ## References

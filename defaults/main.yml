@@ -107,7 +107,7 @@ ntp__restrict_rules: '{{ ntp__global_restrict_rules|
 # When use 'limited' in restrict rule above 
 # only the first client_limit hosts that have shown up at the server
 # and that have been active during the last client_limit_period seconds are accepted
-ntp__clientlimit: 3
+#ntp__clientlimit: 3
 ntp__clientperiod: 3600
 
 # Path to the keys file
@@ -122,7 +122,6 @@ ntp__default_faciities:
   auth: true
   bclient: false
   calibrate: false
-  mode7: false
   monitor: false
   ntp: true
   stats: true
