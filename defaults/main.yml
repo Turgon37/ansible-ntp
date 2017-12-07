@@ -108,7 +108,7 @@ ntp__restrict_rules: '{{ ntp__global_restrict_rules|
 # only the first client_limit hosts that have shown up at the server
 # and that have been active during the last client_limit_period seconds are accepted
 #ntp__clientlimit: 3
-ntp__clientperiod: 3600
+#ntp__clientperiod: 3600
 
 # Path to the keys file
 ntp__keys_file: /etc/ntp/keys

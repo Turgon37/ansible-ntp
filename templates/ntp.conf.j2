@@ -27,7 +27,9 @@ restrict {{ key|ipaddr('network') }} mask {{ key|ipaddr('netmask') }} {{ value }
 {% if ntp__clientlimit is defined %}
 clientlimit {{ ntp__clientlimit }}
 {% endif %}
+{% if ntp__clientperiod is defined %}
 clientperiod {{ ntp__clientperiod }}
+{% endif %}
 
 ## References
 # List of NTP servers to synchronize with
