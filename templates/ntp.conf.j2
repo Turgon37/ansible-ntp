@@ -3,7 +3,7 @@
 #
 
 ## Network interfaces
-{% if ntp__listen|length == 0 %}
+{% if ntp__listen|unique|length == 0 %}
 # ntpd will listen on all interfaces
 {% else %}
 # Addresses to listen on, default is to block everything
