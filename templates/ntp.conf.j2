@@ -33,13 +33,9 @@ clientperiod {{ ntp__clientperiod }}
 
 ## References
 # List of NTP servers to synchronize with
-{% if ntp__servers is string %}
-server {{ ntp__servers }}
-{% else %}
-{%   for address in ntp__servers %}
+{% for address in ntp__servers_merged %}
 server {{ address }}
-{%   endfor %}
-{% endif %}
+{% endfor %}
 
 {% if ntp__broadcast|d([])|length > 0 %}
 # List of address to which the server will broadcast time

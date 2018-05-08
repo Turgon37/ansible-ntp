@@ -10,8 +10,14 @@ ntp__facts: True
 # List of package to remove
 ntp__conflict_packages: []
 
+
+### SERVICE CONFIGURATION
 # The name of the service daemon
 ntp__service_name: ntp
+ntp__service_enabled: True
+
+# Optional path the service environment file
+#ntp__service_environment
 
 # The use that NTP will run as
 ntp__runas_user: ntp
@@ -39,9 +45,11 @@ ntp__var_directory: /var/lib/ntp
 #   * 4 -- 16 seconds (minimal allowed)
 #   * 5 -- 32 seconds
 #   * 6 -- 64 seconds
-ntp__servers: '{{ ntp__servers_map[ansible_distribution]|d(ntp__servers_map["default"])|union(ntp__servers_additionnals) }}'
+ntp__servers: '{{ ntp__servers_map[ansible_distribution]|d(ntp__servers_map["default"]) }}'
 # Additionnal server that you can configure
 ntp__servers_additionnals: []
+# Merged list of available servers
+ntp__servers_merged: '{{ ntp__servers|union(ntp__servers_additionnals)|unique }}'
 
 # YAML dictionary with different NTP server lists depending on OS distribution.
 ntp__servers_map:

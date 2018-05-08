@@ -39,19 +39,19 @@
   when: ntp__runas_user not in getent_passwd|d([])
   notify: [ 'restart-ntp' ]
 
-- name: Install default configuration file
+- name: Install service environment file
   template:
-    src:   default-ntp.j2
-    dest:  /etc/default/ntp
+    src:   ntp.environment.j2
+    dest:  '{{ ntp__service_environment }}'
     owner: root
     group: root
     mode:  0644
-  when: ansible_distribution == 'Debian'
+  when: ntp__service_environment is defined
   notify: [ 'restart-ntp' ]
 
 - name: 'Setup {{ ntp__configuration_file_path }}'
   template:
-    src:   'ntp.conf.j2'
+    src:   ntp.conf.j2
     dest:  '{{ ntp__configuration_file_path }}'
     owner: root
     group: root
