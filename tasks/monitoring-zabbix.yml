@@ -1,0 +1,22 @@
+---
+
+- name: Configure zabbix userparameters
+  include_role:
+    name: zabbix-agent
+    tasks_from: userparameter
+  vars:
+    zabbix_agent__userparameter:
+      name: ntp
+      comment:
+      userparameters:
+        - key: ntp.drift
+          command: '/usr/bin/env cat {{ ntp__drift_file }}'
+          sudo: True
+          sudo_user: '{{ ntp__runas_user }}'
+          sudo_group: '{{ ntp__runas_group }}'
+          comment: get the current ntp drift
+        - key: ntp.synchronisation
+          command: /bin/bash -c 'if ntpstat 1>/dev/null 2>&1; then echo -n 1; else echo -n 0; fi'
+          comment: return 1 if server is synchronised 0 otherwise
+      state: present
+  tags: ['ntp', 'ntp-monitoring']

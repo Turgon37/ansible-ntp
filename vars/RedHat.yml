@@ -1,5 +1,5 @@
 ---
-ntp__service_name: 'ntpd'
+ntp__service_name: ntpd
 
-ntp__conflict_packages:
-  - 'chrony'
+ntp__conflict_packages_names:
+  - chrony

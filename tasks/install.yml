@@ -2,14 +2,12 @@
 
 - name: Remove the conflicting packages
   package:
-    name: '{{ item }}'
+    name:  '{{ item }}'
     state: absent
-  with_items: '{{ ntp__conflict_packages }}'
+  with_items: '{{ ntp__conflict_packages_names }}'
 
 - name: Install NTP packages
   package: 
     name: '{{ item }}'
     state: present
-  with_items:
-    - tzdata
-    - ntp
+  with_items: '{{ ntp__packages_names }}'
