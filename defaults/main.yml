@@ -20,6 +20,7 @@ ntp__packages_names:
 
 
 ### SERVICE CONFIGURATION
+# ---------------------------------------
 # The name of the service daemon
 ntp__service_name: ntp
 ntp__service_enabled: True
@@ -27,9 +28,16 @@ ntp__service_enabled: True
 # Optional path the service environment file
 #ntp__service_environment
 
+# Path to systemd override directory
+ntp__systemd_override_options_dir: '/etc/systemd/system/{{ ntp__service_name }}.service.d'
+
 # The use that NTP will run as
-ntp__runas_user: ntp
-ntp__runas_group: '{{ ntp__runas_user }}'
+ntp__service_user: ntp
+ntp__service_group: '{{ ntp__service_user }}'
+
+
+### NTP CONFIGURATION
+# ---------------------------------------
 
 # The path to the configuration file
 ntp__configuration_file_path: /etc/ntp.conf
@@ -120,7 +128,7 @@ ntp__restrict_rules: '{{ ntp__global_restrict_rules|
                         combine(ntp__group_restrict_rules)|
                         combine(ntp__host_restrict_rules) }}'
 
-# When use 'limited' in restrict rule above 
+# When use 'limited' in restrict rule above
 # only the first client_limit hosts that have shown up at the server
 # and that have been active during the last client_limit_period seconds are accepted
 #ntp__clientlimit: 3

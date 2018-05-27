@@ -12,8 +12,8 @@
         - key: ntp.drift
           command: '/usr/bin/env cat {{ ntp__drift_file }}'
           sudo: True
-          sudo_user: '{{ ntp__runas_user }}'
-          sudo_group: '{{ ntp__runas_group }}'
+          sudo_user: '{{ ntp__service_user }}'
+          sudo_group: '{{ ntp__service_group }}'
           comment: get the current ntp drift
         - key: ntp.synchronisation
           command: /bin/bash -c 'if ntpstat 1>/dev/null 2>&1; then echo -n 1; else echo -n 0; fi'

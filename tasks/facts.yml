@@ -7,9 +7,11 @@
     group: root
     mode:  0755
     state: directory
+  tags: ['ntp', 'ntp-facts']
 
 - name: Insert custom fact file
   copy:
     src:  files/ntp.py
     dest: "{{ facts__dir|d('/etc/ansible/facts.d') }}/ntp.fact"
     mode: 0755
+  tags: ['ntp', 'ntp-facts']

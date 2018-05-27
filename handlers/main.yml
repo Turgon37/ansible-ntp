@@ -3,5 +3,6 @@
 
 - name: restart-ntp
   service:
-    name: '{{ ntp__service_name }}'
+    name:  '{{ ntp__service_name }}'
     state: restarted
+  when: ntp__service_enabled|bool

@@ -1,5 +1,26 @@
 ---
 
+- name: Ensure systemd override directory is created
+  file:
+    path:  '{{ ntp__systemd_override_options_dir }}'
+    state: directory
+  when: ansible_service_mgr == 'systemd'
+
+- name: Install systemd options override file
+  template:
+    src:  systemd.override.service.d.j2
+    dest: '{{ ntp__systemd_override_options_dir }}/override.conf'
+  when: ansible_service_mgr == 'systemd'
+  notify: ['restart-ntp']
+  register: _ntp__service
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  when: ansible_service_mgr == 'systemd' and _ntp__service is changed
+
+- meta: flush_handlers
+
 - name: Ensure NTP daemon is started and enabled on boot
   service:
     name:    '{{ ntp__service_name }}'

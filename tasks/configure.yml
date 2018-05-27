@@ -3,8 +3,8 @@
 - name: Ensure var directory exists
   file:
     path:  '{{ item }}'
-    owner: '{{ ntp__runas_user }}'
-    group: '{{ ntp__runas_group }}'
+    owner: '{{ ntp__service_user }}'
+    group: '{{ ntp__service_group }}'
     mode:  0750
     state: directory
   with_items:
@@ -23,20 +23,20 @@
 - name: Get information about NTP user
   getent:
     database: passwd
-    key: '{{ ntp__runas_user }}'
+    key: '{{ ntp__service_user }}'
     split: ':'
   failed_when: false
 
-- name: "Ensure NTP user '{{ ntp__runas_user }}' is present"
+- name: "Ensure NTP user '{{ ntp__service_user }}' is present"
   user:
-    name:       '{{ ntp__runas_user }}'
-    group:      '{{ ntp__runas_group }}'
+    name:       '{{ ntp__service_user }}'
+    group:      '{{ ntp__service_group }}'
     shell:      /bin/false
     home:       '{{ ntp__var_directory }}'
     createhome: no
     system:     yes
     state:      present
-  when: ntp__runas_user not in getent_passwd|d([])
+  when: ntp__service_user not in getent_passwd|d([])
   notify: [ 'restart-ntp' ]
 
 - name: Install service environment file
