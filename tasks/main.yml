@@ -24,7 +24,7 @@
 - import_tasks: service.yml
   tags: ['ntp', 'ntp-service']
 
-- include_tasks: 'monitoring-{{ ntp__monitoring }}.yml'
+- include_tasks: 'monitoring/{{ ntp__monitoring }}.yml'
   when: ntp__monitoring is defined
   tags: ['ntp', 'ntp-monitoring']
 

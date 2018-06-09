@@ -10,7 +10,7 @@
       comment:
       userparameters:
         - key: ntp.drift
-          command: '/usr/bin/env cat {{ ntp__drift_file }}'
+          command: /bin/bash -c "test -f {{ ntp__drift_file }} && cat {{ ntp__drift_file }} || echo -n 'ZBX_NOTSUPPORTED'"
           sudo: True
           sudo_user: '{{ ntp__service_user }}'
           sudo_group: '{{ ntp__service_group }}'

@@ -31,6 +31,9 @@ ntp__service_enabled: True
 # Path to systemd override directory
 ntp__systemd_override_options_dir: '/etc/systemd/system/{{ ntp__service_name }}.service.d'
 
+# Determine to or to not deploy systemd override options
+ntp__systemd_override_options_enabled: True
+
 # The use that NTP will run as
 ntp__service_user: ntp
 ntp__service_group: '{{ ntp__service_user }}'
