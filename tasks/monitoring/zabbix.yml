@@ -10,13 +10,15 @@
       comment:
       userparameters:
         - key: ntp.drift
-          command: /bin/bash -c "test -f {{ ntp__drift_file }} && cat {{ ntp__drift_file }} || echo -n 'ZBX_NOTSUPPORTED'"
-          sudo: True
+          command: >
+            /usr/bin/env cat '{{ ntp__drift_file }}' 2>&1 | awk '{ if (match($$1, /^[0-9.]+$/)) { print $$1 } else { print "ZBX_NOTSUPPORTED" > "/dev/stderr" } }'
+          sudo: true
           sudo_user: '{{ ntp__service_user }}'
           sudo_group: '{{ ntp__service_group }}'
+          sudo_command: '/usr/bin/env cat {{ ntp__drift_file }}'
           comment: get the current ntp drift
         - key: ntp.synchronisation
-          command: /bin/bash -c 'if ntpstat 1>/dev/null 2>&1; then echo -n 1; else echo -n 0; fi'
+          command: /bin/bash -c 'ntpstat 1>/dev/null 2>&1; echo -n $((! $?))'
           comment: return 1 if server is synchronised 0 otherwise
       state: present
   tags: ['ntp', 'ntp-monitoring']
