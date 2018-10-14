@@ -47,8 +47,8 @@ broadcast  {{ address }}
 # Local references
 {% for ref in ntp__local_references|d([]) %}
 # {{ ntp__local_reference_types[ref.type] }}
-server 127.127.{{ ref.type }}.{{ ref.type|d(0) }}
-fudge 127.127.{{ ref.type }}.{{ ref.type|d(0) }}{% for key, value in ref.parameters|d({})|dictsort %} {{ key }} {{ value }}{% endfor %}
+server 127.127.{{ ref.type }}.{{ ref.unit|d(0) }}
+fudge 127.127.{{ ref.type }}.{{ ref.unit|d(0) }}{% for key, value in ref.parameters|d({})|dictsort %} {{ key }} {{ value }}{% endfor %}
 {% endfor %}
 
 # Facilities
