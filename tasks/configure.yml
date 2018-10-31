@@ -2,10 +2,10 @@
 
 - name: Ensure var directory exists
   file:
-    path:  '{{ item }}'
+    path: '{{ item }}'
     owner: '{{ ntp__service_user }}'
     group: '{{ ntp__service_group }}'
-    mode:  0750
+    mode: 0750
     state: directory
   with_items:
     - '{{ ntp__var_directory }}'
@@ -14,10 +14,10 @@
 
 - name: Ensure configuration directory exists
   file:
-    path:  '{{ ntp__configuration_dir }}'
+    path: '{{ ntp__configuration_dir }}'
     owner: root
     group: root
-    mode:  0755
+    mode: 0755
     state: directory
 
 - name: Get information about NTP user
@@ -29,49 +29,49 @@
 
 - name: "Ensure NTP user '{{ ntp__service_user }}' is present"
   user:
-    name:       '{{ ntp__service_user }}'
-    group:      '{{ ntp__service_group }}'
-    shell:      /bin/false
-    home:       '{{ ntp__var_directory }}'
-    createhome: no
-    system:     yes
-    state:      present
+    name: '{{ ntp__service_user }}'
+    group: '{{ ntp__service_group }}'
+    shell: /bin/false
+    home: '{{ ntp__var_directory }}'
+    createhome: false
+    system: true
+    state: present
   when: ntp__service_user not in getent_passwd|d([])
-  notify: [ 'restart-ntp' ]
+  notify: ['restart-ntp' ]
 
 - name: Install service environment file
   template:
-    src:   ntp.environment.j2
-    dest:  '{{ ntp__service_environment }}'
+    src: ntp.environment.j2
+    dest: '{{ ntp__service_environment }}'
     owner: root
     group: root
-    mode:  0644
+    mode: 0644
   when: ntp__service_environment is defined
-  notify: [ 'restart-ntp' ]
+  notify: ['restart-ntp']
 
 - name: 'Setup {{ ntp__configuration_file_path }}'
   template:
-    src:   ntp.conf.j2
-    dest:  '{{ ntp__configuration_file_path }}'
+    src: ntp.conf.j2
+    dest: '{{ ntp__configuration_file_path }}'
     owner: root
     group: root
-    mode:  0644
-  notify: [ 'restart-ntp' ]
+    mode: 0644
+  notify: ['restart-ntp']
 
 - name: Setup keys file
   template:
-    src:   'keys.j2'
-    dest:  '{{ ntp__keys_file }}'
+    src: keys.j2
+    dest: '{{ ntp__keys_file }}'
     owner: root
     group: root
-    mode:  0600
-  notify: [ 'restart-ntp' ]
+    mode: 0600
+  notify: ['restart-ntp']
 
 - name: Setup keys password file
   template:
-    src:   'keys_passwords.j2'
-    dest:  '{{ ntp__keys_password_file }}'
+    src: keys_passwords.j2
+    dest: '{{ ntp__keys_password_file }}'
     owner: root
     group: root
-    mode:  0600
-  notify: [ 'restart-ntp' ]
+    mode: 0600
+  notify: ['restart-ntp']
