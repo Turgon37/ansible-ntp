@@ -33,7 +33,7 @@ clientperiod {{ ntp__clientperiod }}
 
 ## References
 # List of NTP servers to synchronize with
-{% for address in ntp__servers_merged %}
+{% for address in ntp__servers %}
 server {{ address }}
 {% endfor %}
 

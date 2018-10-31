@@ -1,15 +1,15 @@
 ---
 # defaults file for ntp
 
-# Simple placeholder to allow other roles to detect this role
-ntp__role: True
-
 # Enable facts deploiement
-ntp__facts: True
+ntp__facts: true
 
 # Choose the monitoring backend to configure (if available)
-#ntp__monitoring
+# ntp__monitoring:
 
+
+### INSTALL CONFIGURATION
+# ---------------------------------------
 # List of package to remove
 ntp__conflict_packages_names: []
 
@@ -23,16 +23,16 @@ ntp__packages_names:
 # ---------------------------------------
 # The name of the service daemon
 ntp__service_name: ntp
-ntp__service_enabled: True
+ntp__service_enabled: true
 
 # Optional path the service environment file
-#ntp__service_environment
+# ntp__service_environment:
 
 # Path to systemd override directory
 ntp__systemd_override_options_dir: '/etc/systemd/system/{{ ntp__service_name }}.service.d'
 
 # Determine to or to not deploy systemd override options
-ntp__systemd_override_options_enabled: True
+ntp__systemd_override_options_enabled: true
 
 # The use that NTP will run as
 ntp__service_user: ntp
@@ -64,34 +64,46 @@ ntp__var_directory: /var/lib/ntp
 #   * 4 -- 16 seconds (minimal allowed)
 #   * 5 -- 32 seconds
 #   * 6 -- 64 seconds
-ntp__servers: '{{ ntp__servers_map[ansible_distribution]|d(ntp__servers_map["default"]) }}'
-# Additionnal server that you can configure
-ntp__servers_additionnals: []
+ntp__servers_default: "{{ ntp__servers_map[ansible_distribution]|d(ntp__servers_map['default']) }}"
+
+# This list is intended to be used at global inventory level
+ntp__servers_global: []
+
+# This list is intended to be used at hostgroup inventory level
+ntp__servers_group: []
+
+# This list is intended to be used at host inventory level
+ntp__servers_host: []
+
 # Merged list of available servers
-ntp__servers_merged: '{{ ntp__servers|union(ntp__servers_additionnals)|unique }}'
+ntp__servers: '{{ ntp__servers_default
+  |union(ntp__servers_global)
+  |union(ntp__servers_group)
+  |union(ntp__servers_host)
+  |unique }}'
 
 # YAML dictionary with different NTP server lists depending on OS distribution.
 ntp__servers_map:
   Debian:
-    - '0.debian.pool.ntp.org'
-    - '1.debian.pool.ntp.org'
-    - '2.debian.pool.ntp.org'
-    - '3.debian.pool.ntp.org'
+    - 0.debian.pool.ntp.org
+    - 1.debian.pool.ntp.org
+    - 2.debian.pool.ntp.org
+    - 3.debian.pool.ntp.org
   Ubuntu:
-    - '0.ubuntu.pool.ntp.org'
-    - '1.ubuntu.pool.ntp.org'
-    - '2.ubuntu.pool.ntp.org'
-    - '3.ubuntu.pool.ntp.org'
+    - 0.ubuntu.pool.ntp.org
+    - 1.ubuntu.pool.ntp.org
+    - 2.ubuntu.pool.ntp.org
+    - 3.ubuntu.pool.ntp.org
   CentOS:
-    - '0.centos.pool.ntp.org iburst'
-    - '1.centos.pool.ntp.org iburst'
-    - '2.centos.pool.ntp.org iburst'
-    - '3.centos.pool.ntp.org iburst'
+    - 0.centos.pool.ntp.org iburst
+    - 1.centos.pool.ntp.org iburst
+    - 2.centos.pool.ntp.org iburst
+    - 3.centos.pool.ntp.org iburst
   default:
-    - '0.pool.ntp.org'
-    - '1.pool.ntp.org'
-    - '2.pool.ntp.org'
-    - '3.pool.ntp.org'
+    - 0.pool.ntp.org
+    - 1.pool.ntp.org
+    - 2.pool.ntp.org
+    - 3.pool.ntp.org
 
 # List of multicast or broadcast address to which diffuse time messages
 ntp__broadcast: []
