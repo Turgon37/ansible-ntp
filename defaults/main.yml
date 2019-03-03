@@ -127,21 +127,30 @@ ntp__host_listen: []
 
 # List of restrict rules
 ntp__default_restrict_rules:
+  # By default, exchange time with everybody, but don't allow configuration.
+  - address: default
+    flags: kod notrap nomodify nopeer noquery limited
+    order: 10
   # Local users may interrogate the ntp server more closely.
-  - '127.0.0.1 nomodify'
-  - '::1 nomodify'
+  - address: 127.0.0.1
+    flags: nomodify
+    order: 11
+  - address: '::1'
+    flags: nomodify
+    order: 11
 
 # Restrict rules defined globally for your NTP servers
-ntp__global_restrict_rules: {}
+ntp__restrict_global: []
 # Restrict rules defined in a hostgroup
-ntp__group_restrict_rules: {}
+ntp__restrict_group: []
 # Restrict rules defined for a specific host
-ntp__host_restrict_rules: {}
+ntp__restrict_host: []
 
 # Final set of restrict rules
-ntp__restrict_rules: '{{ ntp__global_restrict_rules|
-                        combine(ntp__group_restrict_rules)|
-                        combine(ntp__host_restrict_rules) }}'
+ntp__restrict: '{{ ntp__default_restrict_rules
+                     |union(ntp__restrict_global)
+                     |union(ntp__restrict_group)
+                     |union(ntp__restrict_host) }}'
 
 # When use 'limited' in restrict rule above
 # only the first client_limit hosts that have shown up at the server
