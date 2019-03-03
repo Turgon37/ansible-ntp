@@ -1,6 +1,6 @@
 ---
 
-- name: Ensure var directory exists
+- name: Ensure required directories exists
   file:
     path: '{{ item }}'
     owner: '{{ ntp__service_user }}'
@@ -9,8 +9,15 @@
     state: directory
   with_items:
     - '{{ ntp__var_directory }}'
+    - '{{ ntp__log_directory }}'
     - '{{ ntp__private_crypt_dir }}'
     - '{{ ntp__statistics_dir if ntp__statistics_dir is defined else omit }}'
+
+- name: Remove previous statistic directory directory
+  file:
+    path: '{{ ntp__var_directory }}/{{ ntp__statistics_dir|basename }}'
+    state: absent
+  when: ntp__var_directory != ntp__log_directory
 
 - name: Ensure configuration directory exists
   file:
@@ -62,7 +69,7 @@
   template:
     src: keys.j2
     dest: '{{ ntp__keys_file }}'
-    owner: root
+    owner: '{{ ntp__service_user }}'
     group: root
     mode: 0600
   notify: ['restart-ntp']
@@ -71,7 +78,7 @@
   template:
     src: keys_passwords.j2
     dest: '{{ ntp__keys_password_file }}'
-    owner: root
+    owner: '{{ ntp__service_user }}'
     group: root
     mode: 0600
   notify: ['restart-ntp']

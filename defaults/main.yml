@@ -46,6 +46,7 @@ ntp__service_group: '{{ ntp__service_user }}'
 ntp__configuration_file_path: /etc/ntp.conf
 ntp__configuration_dir: /etc/ntp
 ntp__var_directory: /var/lib/ntp
+ntp__log_directory: /var/log/ntp
 
 # List of NTP servers to synchronize with
 # You can add server options in server strings, for example::
@@ -117,10 +118,9 @@ ntp__local_references: []
 # List of interfaces NTP should listen on.
 # Specify empty array
 # to listen on all interfaces.
-ntp__listen: "{{ ntp__global_listen|
-                  union(ntp__group_listen)|
-                  union(ntp__host_listen) }}"
-
+ntp__listen: '{{ ntp__global_listen
+                   |union(ntp__group_listen)
+                   |union(ntp__host_listen) }}'
 ntp__global_listen: []
 ntp__group_listen: []
 ntp__host_listen: []
@@ -178,14 +178,14 @@ ntp__default_faciities:
 ntp__global_faciities: {}
 
 # Internal merged value
-ntp__faciities: '{{ ntp__default_faciities|
-                      combine(ntp__global_faciities) }}'
+ntp__faciities: '{{ ntp__default_faciities
+                      |combine(ntp__global_faciities) }}'
 
 # The path to the drift file
 ntp__drift_file: '{{ ntp__var_directory }}/drift'
 
 # The path to store statistics files
-ntp__statistics_dir: '{{ ntp__var_directory }}/stats'
+ntp__statistics_dir: '{{ ntp__log_directory }}/stats'
 
 # Enable generation of the following statistics
 ntp__statistics:
