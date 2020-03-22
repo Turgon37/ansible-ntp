@@ -7,4 +7,7 @@ ntp__packages_names:
   - ntpstat
   - tzdata
 
-ntp__systemd_override_options_enabled: False
+ntp__conflict_packages_names:
+  - chrony
+
+ntp__systemd_override_options_enabled: false
