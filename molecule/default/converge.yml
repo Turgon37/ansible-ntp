@@ -4,4 +4,4 @@
   tasks:
     - name: "Include turgon37.ntp"
       include_role:
-        name: "turgon37.ntp"
+        name: ansible-ntp
