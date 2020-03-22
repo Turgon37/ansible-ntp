@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include turgon37.ntp"
+      include_role:
+        name: "turgon37.ntp"
