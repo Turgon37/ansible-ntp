@@ -11,7 +11,7 @@
 
 - name: Insert custom fact file
   copy:
-    src: files/ntp.fact.py
+    src: files/ntp.facts.py
     dest: "{{ facts__dir|d('/etc/ansible/facts.d') }}/ntp.fact"
     mode: 0755
   tags: ['ntp', 'ntp-facts']
