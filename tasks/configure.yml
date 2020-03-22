@@ -44,7 +44,7 @@
     system: true
     state: present
   when: ntp__service_user not in getent_passwd|d([])
-  notify: ['restart-ntp' ]
+  notify: ['restart-ntp']
 
 - name: Install service environment file
   template:

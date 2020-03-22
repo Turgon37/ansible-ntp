@@ -118,9 +118,12 @@ ntp__local_references: []
 # List of interfaces NTP should listen on.
 # Specify empty array
 # to listen on all interfaces.
-ntp__listen: '{{ ntp__global_listen
-                   |union(ntp__group_listen)
-                   |union(ntp__host_listen) }}'
+ntp__listen: '{{
+    ntp__global_listen
+    |union(ntp__group_listen)
+    |union(ntp__host_listen)
+  }}'
+
 ntp__global_listen: []
 ntp__group_listen: []
 ntp__host_listen: []
@@ -147,16 +150,18 @@ ntp__restrict_group: []
 ntp__restrict_host: []
 
 # Final set of restrict rules
-ntp__restrict: '{{ ntp__default_restrict_rules
-                     |union(ntp__restrict_global)
-                     |union(ntp__restrict_group)
-                     |union(ntp__restrict_host) }}'
+ntp__restrict: '{{
+    ntp__default_restrict_rules
+    |union(ntp__restrict_global)
+    |union(ntp__restrict_group)
+    |union(ntp__restrict_host)
+  }}'
 
 # When use 'limited' in restrict rule above
 # only the first client_limit hosts that have shown up at the server
 # and that have been active during the last client_limit_period seconds are accepted
-#ntp__clientlimit: 3
-#ntp__clientperiod: 3600
+# ntp__clientlimit: 3
+# ntp__clientperiod: 3600
 
 # Path to the keys file
 ntp__keys_file: /etc/ntp/keys
@@ -178,8 +183,10 @@ ntp__default_faciities:
 ntp__global_faciities: {}
 
 # Internal merged value
-ntp__faciities: '{{ ntp__default_faciities
-                      |combine(ntp__global_faciities) }}'
+ntp__faciities: '{{
+    ntp__default_faciities
+    |combine(ntp__global_faciities)
+  }}'
 
 # The path to the drift file
 ntp__drift_file: '{{ ntp__var_directory }}/drift'
