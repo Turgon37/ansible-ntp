@@ -128,17 +128,20 @@ ntp__local_references: []
 # Specify empty array
 # to listen on all interfaces.
 ntp__listen: '{{
-    ntp__global_listen
-    |union(ntp__group_listen)
-    |union(ntp__host_listen)
+    ntp__listen_global
+    |union(ntp__listen_group)
+    |union(ntp__listen_host)
   }}'
 
-ntp__global_listen: []
-ntp__group_listen: []
-ntp__host_listen: []
+# List of listen interfaces intented to be used at global level
+ntp__listen_global: []
+# List of listen interfaces intented to be used at group level
+ntp__listen_group: []
+# List of listen interfaces intented to be used at host level
+ntp__listen_host: []
 
 # List of restrict rules
-ntp__default_restrict_rules:
+ntp__restrict_default:
   # By default, exchange time with everybody, but don't allow configuration.
   - address: default
     flags: kod notrap nomodify nopeer noquery limited
@@ -160,7 +163,7 @@ ntp__restrict_host: []
 
 # Final set of restrict rules
 ntp__restrict: '{{
-    ntp__default_restrict_rules
+    ntp__restrict_default
     |union(ntp__restrict_global)
     |union(ntp__restrict_group)
     |union(ntp__restrict_host)
