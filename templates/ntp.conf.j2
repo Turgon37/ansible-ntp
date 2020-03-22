@@ -31,6 +31,10 @@ clientperiod {{ ntp__clientperiod }}
 server {{ address }}
 {% endfor %}
 
+{% for address in ntp__peers %}
+peers {{ address }}
+{% endfor %}
+
 {% if ntp__broadcast|d([])|length > 0 %}
 # List of address to which the server will broadcast time
 {%   for address in ntp__broadcast|d([]) %}
