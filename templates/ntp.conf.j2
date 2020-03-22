@@ -50,7 +50,7 @@ fudge 127.127.{{ ref.type }}.{{ ref.unit|d(0) }}{% for key, value in ref.paramet
 {% endfor %}
 
 # Facilities
-{% for key, value in ntp__faciities|dictsort %}
+{% for key, value in ntp__facilities|dictsort %}
 {%   if value|bool %}
 enable {{ key }}
 {%   else %}
