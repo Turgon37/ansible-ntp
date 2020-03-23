@@ -23,6 +23,8 @@ ntp__packages_names:
 # ---------------------------------------
 # The name of the service daemon
 ntp__service_name: ntp
+
+# Enable or not the service
 ntp__service_enabled: true
 
 # Optional path the service environment file
@@ -46,6 +48,7 @@ ntp__service_group: '{{ ntp__service_user }}'
 ntp__configuration_file_path: /etc/ntp.conf
 ntp__configuration_dir: /etc/ntp
 ntp__var_directory: /var/lib/ntp
+ntp__log_directory: /var/log/ntp
 
 # List of NTP servers to synchronize with
 # You can add server options in server strings, for example::
@@ -64,7 +67,9 @@ ntp__var_directory: /var/lib/ntp
 #   * 4 -- 16 seconds (minimal allowed)
 #   * 5 -- 32 seconds
 #   * 6 -- 64 seconds
-ntp__servers_default: "{{ ntp__servers_map[ansible_distribution]|d(ntp__servers_map['default']) }}"
+ntp__servers_default: "{{
+    ntp__servers_default_map[ansible_distribution]|d(ntp__servers_default_map['default'])
+  }}"
 
 # This list is intended to be used at global inventory level
 ntp__servers_global: []
@@ -76,14 +81,16 @@ ntp__servers_group: []
 ntp__servers_host: []
 
 # Merged list of available servers
-ntp__servers: '{{ ntp__servers_default
-  |union(ntp__servers_global)
-  |union(ntp__servers_group)
-  |union(ntp__servers_host)
-  |unique }}'
+ntp__servers: '{{
+    ntp__servers_default
+    |union(ntp__servers_global)
+    |union(ntp__servers_group)
+    |union(ntp__servers_host)
+    |unique
+  }}'
 
 # YAML dictionary with different NTP server lists depending on OS distribution.
-ntp__servers_map:
+ntp__servers_default_map:
   Debian:
     - 0.debian.pool.ntp.org
     - 1.debian.pool.ntp.org
@@ -105,6 +112,9 @@ ntp__servers_map:
     - 2.pool.ntp.org
     - 3.pool.ntp.org
 
+# List of ntp peers hosts
+ntp__peers: []
+
 # List of multicast or broadcast address to which diffuse time messages
 ntp__broadcast: []
 
@@ -117,37 +127,53 @@ ntp__local_references: []
 # List of interfaces NTP should listen on.
 # Specify empty array
 # to listen on all interfaces.
-ntp__listen: "{{ ntp__global_listen|
-                  union(ntp__group_listen)|
-                  union(ntp__host_listen) }}"
+ntp__listen: '{{
+    ntp__listen_global
+    |union(ntp__listen_group)
+    |union(ntp__listen_host)
+  }}'
 
-ntp__global_listen: []
-ntp__group_listen: []
-ntp__host_listen: []
+# List of listen interfaces intented to be used at global level
+ntp__listen_global: []
+# List of listen interfaces intented to be used at group level
+ntp__listen_group: []
+# List of listen interfaces intented to be used at host level
+ntp__listen_host: []
 
 # List of restrict rules
-ntp__default_restrict_rules:
+ntp__restrict_default:
+  # By default, exchange time with everybody, but don't allow configuration.
+  - address: default
+    flags: kod notrap nomodify nopeer noquery limited
+    order: 10
   # Local users may interrogate the ntp server more closely.
-  - '127.0.0.1 nomodify'
-  - '::1 nomodify'
+  - address: 127.0.0.1
+    flags: nomodify
+    order: 11
+  - address: '::1'
+    flags: nomodify
+    order: 11
 
 # Restrict rules defined globally for your NTP servers
-ntp__global_restrict_rules: {}
+ntp__restrict_global: []
 # Restrict rules defined in a hostgroup
-ntp__group_restrict_rules: {}
+ntp__restrict_group: []
 # Restrict rules defined for a specific host
-ntp__host_restrict_rules: {}
+ntp__restrict_host: []
 
 # Final set of restrict rules
-ntp__restrict_rules: '{{ ntp__global_restrict_rules|
-                        combine(ntp__group_restrict_rules)|
-                        combine(ntp__host_restrict_rules) }}'
+ntp__restrict: '{{
+    ntp__restrict_default
+    |union(ntp__restrict_global)
+    |union(ntp__restrict_group)
+    |union(ntp__restrict_host)
+  }}'
 
 # When use 'limited' in restrict rule above
 # only the first client_limit hosts that have shown up at the server
 # and that have been active during the last client_limit_period seconds are accepted
-#ntp__clientlimit: 3
-#ntp__clientperiod: 3600
+# ntp__clientlimit: 3
+# ntp__clientperiod: 3600
 
 # Path to the keys file
 ntp__keys_file: /etc/ntp/keys
@@ -157,7 +183,7 @@ ntp__private_crypt_dir: /etc/ntp/crypto
 ntp__keys_password_file: '{{ ntp__private_crypt_dir }}/pw'
 
 # Default settings for facilities
-ntp__default_faciities:
+ntp__facilities_default:
   auth: true
   bclient: false
   calibrate: false
@@ -165,18 +191,26 @@ ntp__default_faciities:
   ntp: true
   stats: true
 
-# Global settings for facilities, you can override this
-ntp__global_faciities: {}
+# Dict of facilities intented to be used at global level
+ntp__facilities_global: {}
+# Dict of facilities intented to be used at group level
+ntp__facilities_group: {}
+# Dict of facilities intented to be used at host level
+ntp__facilities_host: {}
 
 # Internal merged value
-ntp__faciities: '{{ ntp__default_faciities|
-                      combine(ntp__global_faciities) }}'
+ntp__facilities: '{{
+    ntp__facilities_default
+    |combine(ntp__facilities_global)
+    |combine(ntp__facilities_group)
+    |combine(ntp__facilities_host)
+  }}'
 
 # The path to the drift file
 ntp__drift_file: '{{ ntp__var_directory }}/drift'
 
 # The path to store statistics files
-ntp__statistics_dir: '{{ ntp__var_directory }}/stats'
+ntp__statistics_dir: '{{ ntp__log_directory }}/stats'
 
 # Enable generation of the following statistics
 ntp__statistics:

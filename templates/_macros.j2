@@ -1,0 +1,9 @@
+{#
+ # Produce an ACL restrict rule
+ #
+ # @param rule : the rule specifications
+ # @return string
+ #}
+{%- macro restrict(rule) -%}
+restrict {{ rule.address }}{% if rule.mask is defined %} mask {{ rule.mask }}{% endif %} {{ rule.flags }}
+{%- endmacro -%}

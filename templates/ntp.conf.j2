@@ -1,6 +1,5 @@
-#
-# {{ ansible_managed }}
-#
+{%- import '_macros.j2' as macros with context -%}
+{{ ansible_managed|comment(decoration='# ') }}
 
 ## Network interfaces
 {% if ntp__listen|unique|length == 0 %}
@@ -15,14 +14,9 @@ interface listen {{ address }}
 {% endif %}
 
 ## Access control configuration; see /usr/share/doc/ntp-doc/html/accopt.html
-{% for rule in ntp__default_restrict_rules %}
-restrict {{ rule }}
+{% for rule in ntp__restrict|sort(attribute='order')|list %}
+{{   macros.restrict(rule) }}
 {% endfor %}
-{% if ntp__restrict_rules|length > 0 %}
-{%   for key, value in ntp__restrict_rules|dictsort %}
-restrict {{ key|ipaddr('network') }} mask {{ key|ipaddr('netmask') }} {{ value }}
-{%   endfor %}
-{% endif %}
 
 {% if ntp__clientlimit is defined %}
 clientlimit {{ ntp__clientlimit }}
@@ -35,6 +29,10 @@ clientperiod {{ ntp__clientperiod }}
 # List of NTP servers to synchronize with
 {% for address in ntp__servers %}
 server {{ address }}
+{% endfor %}
+
+{% for address in ntp__peers %}
+peers {{ address }}
 {% endfor %}
 
 {% if ntp__broadcast|d([])|length > 0 %}
@@ -52,7 +50,7 @@ fudge 127.127.{{ ref.type }}.{{ ref.unit|d(0) }}{% for key, value in ref.paramet
 {% endfor %}
 
 # Facilities
-{% for key, value in ntp__faciities|dictsort %}
+{% for key, value in ntp__facilities|dictsort %}
 {%   if value|bool %}
 enable {{ key }}
 {%   else %}

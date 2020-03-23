@@ -1,11 +1,11 @@
 ---
 
+- name: Install NTP packages
+  package:
+    name: '{{ ntp__packages_names|list }}'
+    state: present
+
 - name: Remove the conflicting packages
   package:
     name: '{{ ntp__conflict_packages_names|list }}'
     state: absent
-
-- name: Install NTP packages
-  package: 
-    name: '{{ ntp__packages_names|list }}'
-    state: present

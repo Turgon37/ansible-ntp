@@ -16,5 +16,5 @@
 - name: Check stats log capabilities
   fail:
     msg: You want to log stats that are not generated
-  when: not ntp__statistics[item.name] 
+  when: not ntp__statistics[item.name]
   with_items: '{{ ntp__statistics_filegen }}'

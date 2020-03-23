@@ -1,4 +1,6 @@
+---
 galaxy_info:
+  role_name: ntp
   author: Pierre GINDRAUD
   description: This role configure ntp as client or server
   license: MIT
@@ -6,9 +8,10 @@ galaxy_info:
   platforms:
     - name: Debian
       versions:
-        - 9
-        - 8
-    - name: CentOS
+        - jessie
+        - stretch
+        - buster
+    - name: EL
       versions:
         - 7
   galaxy_tags: []
