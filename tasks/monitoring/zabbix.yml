@@ -10,8 +10,9 @@
       comment:
       userparameters:
         - key: ntp.drift
-          command: >
-            /usr/bin/env cat '{{ ntp__drift_file }}' 2>&1 | awk '{ if (match($1, /^[0-9.-]+$/)) { print $1 } else { print "ZBX_NOTSUPPORTED" > "/dev/stderr" } }'
+          command: >-
+            /usr/bin/env cat '{{ ntp__drift_file }}' 2>&1
+            | awk '{ if (match($1, /^[0-9.-]+$/)) { print $1 } else { print "ZBX_NOTSUPPORTED" > "/dev/stderr" } }'
           sudo: true
           sudo_user: '{{ ntp__service_user }}'
           sudo_command: '/usr/bin/env cat {{ ntp__drift_file }}'
