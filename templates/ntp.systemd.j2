@@ -1,0 +1,13 @@
+[Unit]
+Description=Network Time Service
+Documentation=man:ntpd(8)
+After=network-online.target syslog.target ntpdate.service sntp.service
+Conflicts=systemd-timesyncd.service
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/ntpd -u {{ ntp__service_user }}:{{ ntp__service_group }} -g -p {{ ntp__service_pidfile }} 
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

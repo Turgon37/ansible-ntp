@@ -1,4 +1,5 @@
 ---
+
 ntp__service_name: ntpd
 
 ntp__conflict_packages_names:

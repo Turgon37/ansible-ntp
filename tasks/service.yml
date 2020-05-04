@@ -1,26 +1,40 @@
 ---
 
+- name: Install systemd options override file
+  file:
+    path: '{{ ntp__systemd_override_options_dir }}/override.conf'
+    state: absent
+  when: ansible_service_mgr == 'systemd'
+  register: _ntp__service_override
+  notify: ['restart-ntp']
+
 - name: Ensure systemd override directory state
   file:
     path: '{{ ntp__systemd_override_options_dir }}'
-    state: "{{ ntp__systemd_override_options_enabled|bool|ternary('directory', 'absent') }}"
+    state: absent
   when: ansible_service_mgr == 'systemd'
   register: _ntp__service_dir
   notify: ['restart-ntp']
 
-- name: Install systemd options override file
+- name: 'Install {{ prometheus_exporter__name }} systemd service unit file'
   template:
-    src: override.systemd.d.j2
-    dest: '{{ ntp__systemd_override_options_dir }}/override.conf'
-  when: ansible_service_mgr == 'systemd' and ntp__systemd_override_options_enabled|bool
-  register: _ntp__service_override
+    src: ntp.systemd.j2
+    dest: '/etc/systemd/system/{{ ntp__service_name }}.service'
+    owner: root
+    group: root
+    mode: 0640
+  when: ansible_service_mgr == 'systemd'
+  register: _ntp__service_systemd
   notify: ['restart-ntp']
 
 - name: Reload systemd
   systemd:
     daemon_reload: true
-  when: ansible_service_mgr == 'systemd' and (
-      _ntp__service_dir is changed or _ntp__service_override is changed
+  when: ansible_service_mgr == 'systemd'
+    and (
+      _ntp__service_dir is changed
+      or _ntp__service_override is changed
+      or _ntp__service_systemd is changed
     )
 
 - meta: flush_handlers

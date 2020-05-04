@@ -27,6 +27,9 @@ ntp__service_name: ntp
 # Enable or not the service
 ntp__service_enabled: true
 
+# Path to service pid file
+ntp__service_pidfile: /var/run/ntpd.pid
+
 # Optional path the service environment file
 # ntp__service_environment:
 
