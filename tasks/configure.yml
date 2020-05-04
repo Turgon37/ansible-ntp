@@ -1,5 +1,42 @@
 ---
 
+- name: "Create the '{{ ntp__service_group }}' group"
+  group:
+    name: '{{ ntp__service_group }}'
+    system: true
+    state: present
+
+- name: "Create the '{{ ntp__service_user }}' user"
+  user:
+    name: '{{ ntp__service_user }}'
+    group: '{{ ntp__service_group }}'
+    shell: /usr/sbin/nologin
+    system: true
+    createhome: false
+    home: '{{ ntp__var_directory }}'
+    state: present
+  register: _ntp__service_user_changed
+  notify: ['restart-ntp']
+  ignore_errors: true
+
+- name: Stop NTP daemon before user update
+  service:
+    name: '{{ ntp__service_name }}'
+    state: stopped
+  when: _ntp__service_user_changed is failed
+
+- name: "Create the '{{ ntp__service_user }}' user is present (second try)"
+  user:
+    name: '{{ ntp__service_user }}'
+    group: '{{ ntp__service_group }}'
+    shell: /usr/sbin/nologin
+    system: true
+    createhome: false
+    home: '{{ ntp__var_directory }}'
+    state: present
+  when: _ntp__service_user_changed is failed
+  notify: ['restart-ntp']
+
 - name: Ensure required directories exists
   file:
     path: '{{ item }}'
@@ -27,41 +64,18 @@
     mode: 0755
     state: directory
 
-- name: Get information about NTP user
-  getent:
-    database: passwd
-    key: '{{ ntp__service_user }}'
-    split: ':'
-  failed_when: false
-
-- name: "Ensure NTP user '{{ ntp__service_user }}' is present"
-  user:
-    name: '{{ ntp__service_user }}'
-    group: '{{ ntp__service_group }}'
-    shell: /bin/false
-    home: '{{ ntp__var_directory }}'
-    createhome: false
-    system: true
-    state: present
-  when: ntp__service_user not in getent_passwd|d([])
-  notify: ['restart-ntp']
-
-- name: Install service environment file
-  template:
-    src: ntp.environment.j2
-    dest: '{{ ntp__service_environment }}'
-    owner: root
-    group: root
-    mode: 0644
+- name: Remove useless service environment file
+  file:
+    path: '{{ ntp__service_environment }}'
+    state: absent
   when: ntp__service_environment is defined
-  notify: ['restart-ntp']
 
 - name: 'Setup {{ ntp__configuration_file_path }}'
   template:
     src: ntp.conf.j2
     dest: '{{ ntp__configuration_file_path }}'
-    owner: root
-    group: root
+    owner: '{{ ntp__service_user }}'
+    group: '{{ ntp__service_group }}'
     mode: 0644
   notify: ['restart-ntp']
 

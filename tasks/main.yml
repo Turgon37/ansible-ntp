@@ -12,6 +12,12 @@
       skip: true
   tags: ['always']
 
+- name: Check role availability
+  fail:
+    msg: 'This module only works with Systemd'
+  when: ansible_service_mgr != 'systemd'
+  tags: ['always']
+
 - import_tasks: init.yml
   tags: ['always']
 
