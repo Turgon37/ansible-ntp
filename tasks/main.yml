@@ -18,22 +18,31 @@
   when: ansible_service_mgr != 'systemd'
   tags: ['always']
 
-- import_tasks: init.yml
+- name: Importing initialization tasks
+  import_tasks: init.yml
   tags: ['always']
 
-- import_tasks: install.yml
+- name: Importing install tasks
+  import_tasks: install.yml
   tags: ['ntp', 'ntp-install']
 
-- import_tasks: configure.yml
+- name: Importing configuration tasks
+  import_tasks: configure.yml
   tags: ['ntp', 'ntp-configure']
 
-- import_tasks: service.yml
+- name: Importing service tasks
+  import_tasks: service.yml
   tags: ['ntp', 'ntp-service']
 
-- include_tasks: 'monitoring/{{ ntp__monitoring }}.yml'
+- name: Optionally including monitoring tasks
+  include_tasks: 'monitoring/{{ monitoring_backend }}.yml'
+  loop: '{{ [ntp__monitoring]|flatten|unique|list }}'
   when: ntp__monitoring is defined
+  loop_control:
+    loop_var: monitoring_backend
   tags: ['ntp', 'ntp-monitoring']
 
-- include_tasks: facts.yml
+- name: Optionally including facts tasks
+  include_tasks: facts.yml
   when: ntp__facts|bool
   tags: ['ntp', 'ntp-facts']
